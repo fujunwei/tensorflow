@@ -12,10 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 # ==============================================================================
-"""label_image for tflite."""
+"""convTranspose2d for tflite."""
 
 import argparse
-import time
 
 import numpy as np
 import tflite_runtime.interpreter as tflite
@@ -25,7 +24,7 @@ if __name__ == '__main__':
   parser.add_argument(
       '-m',
       '--model_file',
-      default='/home/junwei/workspace/webnn/tflite_python/ops_test/conv_transpose2d.tflite',
+      default='./conv_transpose2d.tflite',
       help='.tflite model to be executed')
 
   args = parser.parse_args()
@@ -39,23 +38,13 @@ if __name__ == '__main__':
   input_details = interpreter.get_input_details()
   output_details = interpreter.get_output_details()
 
-  # check the type of the input tensor
-  # floating_model = input_details[0]['dtype'] == np.float32
-
-  # NxHxWxC, H:1, W:2
-  height = input_details[0]['shape'][1]
-  width = input_details[0]['shape'][2]
-
-  # add N dim
   input_data = np.array([[[[0.5872158177067033, 0.6077792328258038], 
                            [0.01728916618181975, 0.26146076483771563]]]], dtype=np.float32)
   print('input shape: {}'.format(input_data.shape))
 
   interpreter.set_tensor(input_details[0]['index'], input_data)
 
-  start_time = time.time()
   interpreter.invoke()
-  stop_time = time.time()
 
   output_data = interpreter.get_tensor(output_details[0]['index'])
   print('output data: {}'.format(output_data))
