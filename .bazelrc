@@ -385,6 +385,14 @@ build:macos --copt=-w
 build:windows --copt=/W0
 build:windows --host_copt=/W0
 
+# On Windows, set /std:c11 and /experimental:c11atomics for pthreadpool.
+build:windows --conlyopt=/std:c11
+build:windows --host_conlyopt=/std:c11
+build:windows --conlyopt=/experimental:c11atomics
+build:windows --host_conlyopt=/experimental:c11atomics
+build:windows --per_file_copt=external/pthreadpool/.*@-std=c11
+build:windows --per_file_copt=external/pthreadpool/_*@/D_CRT_SECURE_NO_WARNINGS
+
 # Suppress most C++ compiler warnings to reduce log size but allow
 # for specific warnings to still be present.
 build:linux --copt="-Wno-all"

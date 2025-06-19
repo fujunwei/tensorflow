@@ -329,8 +329,8 @@ TFLITE_ATTRIBUTE_WEAK void DumpArenaInfo(
 
 void SimpleMemoryArena::DumpDebugInfo(
     const std::string& name, const std::vector<int>& execution_plan) const {
-  tflite::DumpArenaInfo(name, execution_plan, underlying_buffer_.GetSize(),
-                        active_allocs_);
+  // tflite::DumpArenaInfo(name, execution_plan, underlying_buffer_.GetSize(),
+  //                       active_allocs_);
 }
 
 }  // namespace tflite

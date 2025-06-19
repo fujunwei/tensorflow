@@ -131,68 +131,68 @@ class TopKLayers {
 }  // namespace
 
 // Corresponding weak declaration found in lite/simple_memory_arena.cc
-void DumpArenaInfo(const std::string& name,
-                   const std::vector<int>& execution_plan, size_t arena_size,
-                   const std::vector<ArenaAllocWithUsageInterval>& allocs) {
-  if (allocs.empty() || execution_plan.empty()) return;
+// void DumpArenaInfo(const std::string& name,
+//                    const std::vector<int>& execution_plan, size_t arena_size,
+//                    const std::vector<ArenaAllocWithUsageInterval>& allocs) {
+//   if (allocs.empty() || execution_plan.empty()) return;
 
-  const int max_node_id =
-      *std::max_element(execution_plan.begin(), execution_plan.end());
+//   const int max_node_id =
+//       *std::max_element(execution_plan.begin(), execution_plan.end());
 
-  printf("=== Beginning of %s ===\n", name.c_str());
-  printf("Total size is %zu bytes (%.3f MB), holding %zu tensors.\n",
-         arena_size, static_cast<float>(arena_size) / (1 << 20), allocs.size());
-  std::vector<int> max_size_tensors;
-  size_t max_tensor_size = 0;
-  for (const auto& alloc_info : allocs) {
-    printf("tensor %d: life_span: node [%d, %d], size:  %zu bytes (%.3f MB).\n",
-           alloc_info.tensor, alloc_info.first_node,
-           alloc_info.last_node == kNodeNotAssigned ? max_node_id
-                                                    : alloc_info.last_node,
-           alloc_info.size, static_cast<float>(alloc_info.size) / (1 << 20));
-    if (alloc_info.size > max_tensor_size) {
-      max_size_tensors.clear();
-      max_size_tensors.push_back(alloc_info.tensor);
-      max_tensor_size = alloc_info.size;
-    } else if (alloc_info.size == max_tensor_size) {
-      max_size_tensors.push_back(alloc_info.tensor);
-    }
-  }
-  std::sort(max_size_tensors.begin(), max_size_tensors.end());
-  printf("%zu tensors are of same max size (%zu B (%.3f MB)): ",
-         max_size_tensors.size(), max_tensor_size,
-         static_cast<float>(max_tensor_size) / (1 << 20));
-  PrintIntVector(max_size_tensors);
+//   printf("=== Beginning of %s ===\n", name.c_str());
+//   printf("Total size is %zu bytes (%.3f MB), holding %zu tensors.\n",
+//          arena_size, static_cast<float>(arena_size) / (1 << 20), allocs.size());
+//   std::vector<int> max_size_tensors;
+//   size_t max_tensor_size = 0;
+//   for (const auto& alloc_info : allocs) {
+//     printf("tensor %d: life_span: node [%d, %d], size:  %zu bytes (%.3f MB).\n",
+//            alloc_info.tensor, alloc_info.first_node,
+//            alloc_info.last_node == kNodeNotAssigned ? max_node_id
+//                                                     : alloc_info.last_node,
+//            alloc_info.size, static_cast<float>(alloc_info.size) / (1 << 20));
+//     if (alloc_info.size > max_tensor_size) {
+//       max_size_tensors.clear();
+//       max_size_tensors.push_back(alloc_info.tensor);
+//       max_tensor_size = alloc_info.size;
+//     } else if (alloc_info.size == max_tensor_size) {
+//       max_size_tensors.push_back(alloc_info.tensor);
+//     }
+//   }
+//   std::sort(max_size_tensors.begin(), max_size_tensors.end());
+//   printf("%zu tensors are of same max size (%zu B (%.3f MB)): ",
+//          max_size_tensors.size(), max_tensor_size,
+//          static_cast<float>(max_tensor_size) / (1 << 20));
+//   PrintIntVector(max_size_tensors);
 
-  printf("\nPer-layer-info in the order of op execution:\n");
-  // A straightforward way of computing per-op memory consumption
-  // in the order of O(execution_plan.size() * allocs.size().
-  std::vector<size_t> per_op_mem_bytes(execution_plan.size());
-  // Track top 5 layers that consume most memory.
-  TopKLayers top_usage(5, arena_size);
-  for (int i = 0; i < execution_plan.size(); ++i) {
-    const int node_id = execution_plan[i];
-    size_t total_bytes = 0;
-    std::vector<int> live_tensors;
-    for (const auto& alloc_info : allocs) {
-      if (node_id >= alloc_info.first_node && node_id <= alloc_info.last_node) {
-        total_bytes += alloc_info.size;
-        live_tensors.push_back(alloc_info.tensor);
-      }
-    }
-    per_op_mem_bytes[i] = total_bytes;
-    std::sort(live_tensors.begin(), live_tensors.end());
-    printf(
-        "Node %d: %zu bytes (%.3f MB), utilization rate: %.3f%%, %zu live "
-        "tensors: ",
-        node_id, total_bytes, static_cast<float>(total_bytes) / (1 << 20),
-        static_cast<float>(total_bytes) / arena_size * 100.0,
-        live_tensors.size());
-    PrintIntVector(live_tensors);
-    printf("\n");
-    top_usage.Add(node_id, total_bytes, live_tensors);
-  }
-  top_usage.Print();
-  printf("===End of %s ===\n\n", name.c_str());
-}
+//   printf("\nPer-layer-info in the order of op execution:\n");
+//   // A straightforward way of computing per-op memory consumption
+//   // in the order of O(execution_plan.size() * allocs.size().
+//   std::vector<size_t> per_op_mem_bytes(execution_plan.size());
+//   // Track top 5 layers that consume most memory.
+//   TopKLayers top_usage(5, arena_size);
+//   for (int i = 0; i < execution_plan.size(); ++i) {
+//     const int node_id = execution_plan[i];
+//     size_t total_bytes = 0;
+//     std::vector<int> live_tensors;
+//     for (const auto& alloc_info : allocs) {
+//       if (node_id >= alloc_info.first_node && node_id <= alloc_info.last_node) {
+//         total_bytes += alloc_info.size;
+//         live_tensors.push_back(alloc_info.tensor);
+//       }
+//     }
+//     per_op_mem_bytes[i] = total_bytes;
+//     std::sort(live_tensors.begin(), live_tensors.end());
+//     printf(
+//         "Node %d: %zu bytes (%.3f MB), utilization rate: %.3f%%, %zu live "
+//         "tensors: ",
+//         node_id, total_bytes, static_cast<float>(total_bytes) / (1 << 20),
+//         static_cast<float>(total_bytes) / arena_size * 100.0,
+//         live_tensors.size());
+//     PrintIntVector(live_tensors);
+//     printf("\n");
+//     top_usage.Add(node_id, total_bytes, live_tensors);
+//   }
+//   top_usage.Print();
+//   printf("===End of %s ===\n\n", name.c_str());
+// }
 }  // namespace tflite

@@ -78,7 +78,7 @@ class ProfileSummarizer {
 
   void SetSubgraphNameMap(const tflite::Interpreter& interpreter) {
     subgraph_name_map_.clear();
-    for (int subgraph_index = 0; subgraph_index < interpreter.subgraphs_size();
+    for (size_t subgraph_index = 0; subgraph_index < interpreter.subgraphs_size();
          ++subgraph_index) {
       subgraph_name_map_[subgraph_index] =
           interpreter.subgraph(subgraph_index)->GetName();

@@ -54,7 +54,7 @@ cc_library_with_tflite(
         ":external_delegate_provider",
         ":gpu_delegate_provider",
         ":hexagon_delegate_provider",
-        ":nnapi_delegate_provider",
+        #":nnapi_delegate_provider",
         "//tensorflow/lite/tools/delegates/experimental/stable_delegate:delegate_provider",
     ],
     alwayslink = 1,
